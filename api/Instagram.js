@@ -1,46 +1,37 @@
 import axios from "axios";
 
+const C = "\x1b[96m";
+const R = "\x1b[0m";
+
+console.log(`
+${C}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   dev - @Aotpy / Paras
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${R}
+`);
+
 export default async function handler(req, res) {
   const { url } = req.query;
 
   if (!url) {
-    return res.json({
-      success: false,
-      error: "Instagram URL required"
-    });
+    return res.json({ success: false, error: "URL required" });
   }
 
   try {
     const r = await axios.get(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-      }
+      headers: { "User-Agent": "Mozilla/5.0" }
     });
 
-    const html = r.data;
-
-    // video url nikaalo
-    const match = html.match(/"video_url":"([^"]+)"/);
-
+    const match = r.data.match(/"video_url":"([^"]+)"/);
     if (!match) {
-      return res.json({
-        success: false,
-        error: "Video not found / private"
-      });
+      return res.json({ success: false });
     }
 
     const video = match[1].replace(/\\u0026/g, "&");
-
-    return res.json({
-      success: true,
-      video
-    });
+    res.json({ success: true, video });
 
   } catch (e) {
-    return res.json({
-      success: false,
-      error: "Instagram blocked request"
-    });
+    res.json({ success: false, error: "Blocked" });
   }
 }
